@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-replay"
+version = "0.1.0"
+description = "Offline regression tests for agent tool calls"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = ["pydantic>=2.0,<3", "typer>=0.12", "jsonschema>=4.18"]
+
+[project.scripts]
+agent-replay = "agent_replay.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.8", "mypy>=1.10", "types-jsonschema"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

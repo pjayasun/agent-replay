@@ -1,0 +1,19 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-groups
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      - run: uv run pytest --cov=agent_replay --cov-report=term-missing
+      - run: uv build
+      - run: uv run python examples/mock_agent.py

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {
+      "tool": "read_file",
+      "arguments": {
+        "path": "notes.txt"
+      },
+      "result": "synthetic note",
+      "error": null,
+      "timestamp": null
+    },
+    {
+      "tool": "write_file",
+      "arguments": {
+        "path": "summary.txt",
+        "content": "summary"
+      },
+      "result": null,
+      "error": "permission denied",
+      "timestamp": null
+    }
+  ]
+}

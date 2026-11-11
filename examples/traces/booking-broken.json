@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {
+      "tool": "search_rooms",
+      "arguments": {
+        "city": "Boston",
+        "nights": 3
+      },
+      "result": {
+        "room_id": "room-1"
+      },
+      "error": null,
+      "timestamp": null
+    },
+    {
+      "tool": "reserve_room",
+      "arguments": {
+        "room_id": "room-1"
+      },
+      "result": {
+        "confirmation": "demo-1"
+      },
+      "error": null,
+      "timestamp": null
+    }
+  ]
+}

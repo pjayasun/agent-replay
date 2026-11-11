@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {
+      "tool": "query_database",
+      "arguments": {
+        "sql": "SELECT name FROM customers LIMIT 1"
+      },
+      "result": [
+        {
+          "name": "Ada"
+        }
+      ],
+      "error": null,
+      "timestamp": null
+    }
+  ]
+}

@@ -14,10 +14,10 @@ The Python package contains versioned trace models, provider import adapters, de
 
 ## Commands
 
-- Install: `uv sync --all-groups`
-- Test: `uv run pytest --cov=agent_replay --cov-report=term-missing`
-- Lint: `uv run ruff check .`
-- Typecheck: `uv run mypy src`
+- Install: `uv sync --all-groups --no-editable`
+- Test: `uv run --no-editable pytest --cov=agent_replay --cov-report=term-missing`
+- Lint: `uv run --no-editable ruff check .`
+- Typecheck: `uv run --no-editable mypy src`
 - Build: `uv build`
 
 ## Future tasks

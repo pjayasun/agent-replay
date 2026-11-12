@@ -22,7 +22,11 @@ def import_messages(provider: str, messages: Any) -> Trace:
             role = message["role"]
             if provider == "openai":
                 if role == "assistant" and "tool_calls" in message:
+                    if not isinstance(message["tool_calls"], list):
+                        raise ValueError("OpenAI tool_calls must be an array")
                     for call in message["tool_calls"]:
+                        if not isinstance(call, dict):
+                            raise ValueError("OpenAI tool call must be an object")  # noqa: TRY004
                         if call["type"] != "function":
                             raise ValueError("only OpenAI function calls are supported")
                         ident = call["id"]
@@ -39,6 +43,8 @@ def import_messages(provider: str, messages: Any) -> Trace:
                         steps.append(step)
                 elif role == "tool":
                     ident = message["tool_call_id"]
+                    if not isinstance(ident, str) or not ident:
+                        raise ValueError("tool_call_id must be a nonempty string")
                     step = pending.pop(ident)
                     if not isinstance(message["content"], str):
                         raise ValueError("OpenAI tool content must be a string")
@@ -54,6 +60,8 @@ def import_messages(provider: str, messages: Any) -> Trace:
                 if not isinstance(content, list):
                     raise ValueError("Anthropic content must be a string or block array")
                 for block in content:
+                    if not isinstance(block, dict):
+                        raise ValueError("Anthropic content block must be an object")  # noqa: TRY004
                     kind = block["type"]
                     if kind == "text":
                         continue
@@ -68,7 +76,12 @@ def import_messages(provider: str, messages: Any) -> Trace:
                         pending[ident] = step
                         steps.append(step)
                     elif kind == "tool_result" and role == "user":
-                        step = pending.pop(block["tool_use_id"])
+                        ident = block["tool_use_id"]
+                        if not isinstance(ident, str) or not ident:
+                            raise ValueError("tool_use_id must be a nonempty string")
+                        if "is_error" in block and not isinstance(block["is_error"], bool):
+                            raise ValueError("is_error must be a boolean")
+                        step = pending.pop(ident)
                         content = block["content"]
                         if not isinstance(content, str):
                             raise ValueError("Anthropic tool_result content must be a string")

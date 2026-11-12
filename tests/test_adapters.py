@@ -45,3 +45,38 @@ def test_cli_import_and_failure(tmp_path):
     result = runner.invoke(app, ["import", "openai", str(source), str(target)])
     assert result.exit_code == 2
     assert "tool_calls must be an array" in result.output
+
+
+@pytest.mark.parametrize("function", [None, [], "invalid", {}, {"name": "search"},
+                                      {"name": "search", "arguments": None},
+                                      {"name": "search", "arguments": "null"}])
+def test_rejects_malformed_nested_openai_function(function):
+    message = {"role": "assistant", "tool_calls": [
+        {"id": "call-1", "type": "function", "function": function}]}
+    with pytest.raises(ValueError):
+        import_messages("openai", [message])
+
+
+def test_anthropic_reordered_results_preserve_call_order():
+    messages = [
+        {"role": "assistant", "content": [
+            {"type": "tool_use", "id": "a", "name": "first", "input": {}},
+            {"type": "tool_use", "id": "b", "name": "second", "input": {}},
+        ]},
+        {"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": "b", "content": "failed", "is_error": True},
+            {"type": "tool_result", "tool_use_id": "a", "content": "ok"},
+        ]},
+    ]
+    steps = import_messages("anthropic", messages).steps
+    assert [(s.tool, s.result, s.error) for s in steps] == [
+        ("first", "ok", None), ("second", None, "failed")]
+
+
+def test_anthropic_rejects_reused_completed_call_id():
+    call = {"role": "assistant", "content": [
+        {"type": "tool_use", "id": "a", "name": "search", "input": {}}]}
+    result = {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": "a", "content": "ok"}]}
+    with pytest.raises(ValueError, match="duplicate call id"):
+        import_messages("anthropic", [call, result, call, result])

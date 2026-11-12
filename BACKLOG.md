@@ -2,9 +2,9 @@
 
 Ordered by impact; each issue is intended to take under one hour.
 
-1. [test] Exercise malformed nested provider function objects.
-2. [test] Cover reordered Anthropic tool result blocks.
-3. [test] Cover duplicate completed Anthropic call IDs.
+1. [test] Cover malformed provider function names and inputs.
+2. [test] Cover malformed and orphaned provider results.
+3. [docs] Add synthetic examples for parallel provider calls.
 4. [feat] Add a schema validation CLI for traces.
 5. [docs] Explain integrating the call hook with an existing agent.
 6. [test] Exercise timestamp parsing and version rejection.

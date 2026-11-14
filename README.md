@@ -15,6 +15,7 @@ uv sync --all-groups --no-editable
 uv run --no-editable pytest --cov=agent_replay --cov-report=term-missing
 uv run --no-editable python examples/mock_agent.py
 uv run --no-editable python examples/observed_agent.py
+uv run --no-editable agent-replay validate examples/traces/booking.json
 uv run --no-editable agent-replay compare examples/traces/booking.json examples/traces/booking-broken.json --json-report report.json
 ```
 
@@ -22,7 +23,7 @@ The last command intentionally exits 1. An editable local installation is `pytho
 
 ## Installation on macOS
 
-The commands above use uv's `--no-editable` mode. This installs the package into the environment instead of relying on an editable-install `.pth` file, which Python skips if a macOS utility marks it hidden. After changing source code, run the same `uv run --no-editable` commands again so uv refreshes the installed package. Avoid marking environment files hidden recursively.
+The commands above use uv's `--no-editable` mode. This installs the package into the environment instead of relying on an editable-install `.pth` file, which Python skips if a macOS utility marks it hidden. After changing source code, run `uv sync --all-groups --no-editable --reinstall-package agent-replay` to refresh the installed package before running checks. Avoid marking environment files hidden recursively.
 
 ## What it checks
 
@@ -33,6 +34,10 @@ Each JSON trace has `schema_version: 1` and a `steps` array. Each step has `tool
 Strict compares values and object key order, including nested arguments, and treats booleans and numbers as different. Loose ignores object key order and keys named by repeatable `--ignore` at any nesting level, including trace fields. Extra keys in arguments only are allowed if their key names are passed with repeatable `--optional`; these names apply at every argument nesting level. Missing expected keys remain failures. List order and all other values remain exact. These options are ignored in strict mode. Be careful: broad key names may hide meaningful differences.
 
 `--json-report report.json` writes a machine-readable object containing a `differences` array. Exit status is 0 for match, 1 for regression, 2 for bad input. Terminal differences are colored when supported. Use `uv run --no-editable agent-replay compare BASELINE ACTUAL --loose --ignore timestamp --optional request_id`.
+
+## Validate a trace
+
+Run `uv run --no-editable agent-replay validate path/to/trace.json` to check a trace against the supported versioned format before comparing or replaying it. A valid trace exits 0; unreadable, malformed, or unsupported traces print a validation error and exit 2. This validates the file format, not whether the recorded calls are correct or safe to execute. Trace values may appear in validation errors, so protect CI logs containing sensitive data.
 
 ## Agent and pytest integration
 

@@ -14,6 +14,20 @@ from .models import dump_trace, load_trace, read_json
 app = typer.Typer(no_args_is_help=True)
 
 
+@app.command("validate")
+def validate_command(trace: Path) -> None:
+    """Validate a trace file against the supported versioned format."""
+    try:
+        parsed = load_trace(trace)
+    except (OSError, ValueError, ValidationError) as exc:
+        typer.secho(f"Error: {trace}: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from exc
+    typer.secho(
+        f"PASS: {trace}: schema version {parsed.schema_version}, {len(parsed.steps)} steps",
+        fg=typer.colors.GREEN,
+    )
+
+
 @app.command("compare")
 def compare_command(expected: Path, actual: Path, loose: bool = False,
                     ignore: Annotated[list[str] | None, typer.Option()] = None,

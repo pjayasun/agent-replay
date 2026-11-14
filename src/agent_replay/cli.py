@@ -1,6 +1,7 @@
 """Command line interface."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Annotated
 
@@ -15,20 +16,29 @@ app = typer.Typer(no_args_is_help=True)
 
 
 @app.command("validate")
-def validate_command(traces: Annotated[list[Path], typer.Argument()]) -> None:
+def validate_command(traces: Annotated[list[Path], typer.Argument()],
+                     json_output: Annotated[bool, typer.Option("--json")] = False) -> None:
     """Validate one or more traces against the supported versioned format."""
     failed = False
+    results: list[dict[str, object]] = []
     for trace in traces:
         try:
             parsed = load_trace(trace)
         except (OSError, ValueError, ValidationError) as exc:
-            typer.secho(f"Error: {trace}: {exc}", fg=typer.colors.RED, err=True)
+            results.append({"path": str(trace), "valid": False, "error": str(exc)})
+            if not json_output:
+                typer.secho(f"Error: {trace}: {exc}", fg=typer.colors.RED, err=True)
             failed = True
             continue
-        typer.secho(
-            f"PASS: {trace}: schema version {parsed.schema_version}, {len(parsed.steps)} steps",
-            fg=typer.colors.GREEN,
-        )
+        results.append({"path": str(trace), "valid": True, "schema_version": parsed.schema_version,
+                        "step_count": len(parsed.steps)})
+        if not json_output:
+            typer.secho(
+                f"PASS: {trace}: schema version {parsed.schema_version}, {len(parsed.steps)} steps",
+                fg=typer.colors.GREEN,
+            )
+    if json_output:
+        typer.echo(json.dumps({"valid": not failed, "results": results}, indent=2))
     if failed:
         raise typer.Exit(2)
 

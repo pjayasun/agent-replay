@@ -59,3 +59,30 @@ def test_validate_continues_after_invalid_file(tmp_path):
 
 def test_validate_requires_a_path():
     assert CliRunner().invoke(app, ["validate"]).exit_code == 2
+
+
+def test_json_validation_success():
+    path = "examples/traces/sql.json"
+    result = CliRunner().invoke(app, ["validate", "--json", path])
+    assert result.exit_code == 0
+    assert result.stderr == ""
+    assert json.loads(result.stdout) == {
+        "valid": True,
+        "results": [{"path": path, "valid": True, "schema_version": 1, "step_count": 1}],
+    }
+
+
+def test_json_validation_reports_mixed_results(tmp_path):
+    missing = tmp_path / "missing.json"
+    valid = "examples/traces/booking.json"
+    result = CliRunner().invoke(app, ["validate", "--json", str(missing), valid])
+    assert result.exit_code == 2
+    assert result.stderr == ""
+    report = json.loads(result.stdout)
+    assert report["valid"] is False
+    assert report["results"][0]["path"] == str(missing)
+    assert report["results"][0]["valid"] is False
+    assert report["results"][0]["error"]
+    assert report["results"][1] == {
+        "path": valid, "valid": True, "schema_version": 1, "step_count": 2,
+    }

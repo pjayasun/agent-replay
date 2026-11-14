@@ -82,8 +82,13 @@ def test_cli_and_round_trip(tmp_path):
     runner = CliRunner()
     result = runner.invoke(app, ["compare", str(expected), str(actual), "--json-report", str(report)])
     assert result.exit_code == 1
-    assert json.loads(report.read_text())["differences"]
-    assert runner.invoke(app, ["compare", str(expected), str(expected)]).exit_code == 0
+    failing_report = json.loads(report.read_text())
+    assert failing_report["passed"] is False
+    assert failing_report["differences"]
+    passing = runner.invoke(app, ["compare", str(expected), str(expected),
+                                  "--json-report", str(report)])
+    assert passing.exit_code == 0
+    assert json.loads(report.read_text()) == {"passed": True, "differences": []}
     assert runner.invoke(app, ["compare", str(expected), "missing.json"]).exit_code == 2
 
 

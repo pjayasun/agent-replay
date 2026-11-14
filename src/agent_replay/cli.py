@@ -53,7 +53,8 @@ def compare_command(expected: Path, actual: Path, loose: bool = False,
         report = compare(load_trace(expected), load_trace(actual),
                          "loose" if loose else "strict", set(ignore or []), set(optional or []))
         if json_report:
-            json_report.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+            payload = {"passed": report.passed, **report.model_dump()}
+            json_report.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         if report.passed:
             typer.secho("PASS: traces match", fg=typer.colors.GREEN)
         else:

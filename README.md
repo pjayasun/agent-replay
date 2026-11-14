@@ -33,7 +33,7 @@ Each JSON trace has `schema_version: 1` and a `steps` array. Each step has `tool
 
 Strict compares values and object key order, including nested arguments, and treats booleans and numbers as different. Loose ignores object key order and keys named by repeatable `--ignore` at any nesting level, including trace fields. Extra keys in arguments only are allowed if their key names are passed with repeatable `--optional`; these names apply at every argument nesting level. Missing expected keys remain failures. List order and all other values remain exact. These options are ignored in strict mode. Be careful: broad key names may hide meaningful differences.
 
-`--json-report report.json` writes a machine-readable object containing a `differences` array. Exit status is 0 for match, 1 for regression, 2 for bad input. Terminal differences are colored when supported. Use `uv run --no-editable agent-replay compare BASELINE ACTUAL --loose --ignore timestamp --optional request_id`.
+`--json-report report.json` writes a machine-readable object containing a `passed` boolean and a `differences` array. Exit status is 0 for match, 1 for regression, 2 for bad input. Terminal differences are colored when supported. Use `uv run --no-editable agent-replay compare BASELINE ACTUAL --loose --ignore timestamp --optional request_id`.
 
 ## Validate a trace
 

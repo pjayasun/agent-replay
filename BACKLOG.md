@@ -8,7 +8,7 @@ Ordered by impact; each issue is intended to take under one hour.
 4. [test] Cover unreadable trace files in validation.
 5. [docs] Explain integrating the call hook with an existing agent.
 6. [test] Exercise timestamp parsing and version rejection.
-7. [feat] Include pass/fail status in JSON reports.
+7. [feat] Add a JSON report schema version.
 8. [test] Test empty and extra mock calls in CLI examples.
 9. [docs] Add a trace redaction guide.
 10. [feat] Add path-specific ignored fields.

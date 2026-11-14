@@ -36,3 +36,26 @@ def test_validate_reports_missing_file(tmp_path):
     result = CliRunner().invoke(app, ["validate", str(path)])
     assert result.exit_code == 2
     assert str(path) in result.output
+
+
+def test_validate_multiple_valid_files():
+    paths = ["examples/traces/booking.json", "examples/traces/sql.json"]
+    result = CliRunner().invoke(app, ["validate", *paths])
+    assert result.exit_code == 0
+    assert all(f"PASS: {path}" in result.output for path in paths)
+
+
+def test_validate_continues_after_invalid_file(tmp_path):
+    invalid = tmp_path / "invalid.json"
+    invalid.write_text("not json", encoding="utf-8")
+    missing = tmp_path / "missing.json"
+    valid = "examples/traces/sql.json"
+    result = CliRunner().invoke(app, ["validate", str(invalid), valid, str(missing)])
+    assert result.exit_code == 2
+    assert str(invalid) in result.output
+    assert str(missing) in result.output
+    assert f"PASS: {valid}" in result.output
+
+
+def test_validate_requires_a_path():
+    assert CliRunner().invoke(app, ["validate"]).exit_code == 2

@@ -5,7 +5,7 @@ Ordered by impact; each issue is intended to take under one hour.
 1. [test] Cover malformed provider function names and inputs.
 2. [test] Cover malformed and orphaned provider results.
 3. [docs] Add synthetic examples for parallel provider calls.
-4. [feat] Add batch validation for multiple trace files.
+4. [feat] Add JSON output for trace validation.
 5. [docs] Explain integrating the call hook with an existing agent.
 6. [test] Exercise timestamp parsing and version rejection.
 7. [feat] Include pass/fail status in JSON reports.

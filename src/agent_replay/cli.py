@@ -15,17 +15,22 @@ app = typer.Typer(no_args_is_help=True)
 
 
 @app.command("validate")
-def validate_command(trace: Path) -> None:
-    """Validate a trace file against the supported versioned format."""
-    try:
-        parsed = load_trace(trace)
-    except (OSError, ValueError, ValidationError) as exc:
-        typer.secho(f"Error: {trace}: {exc}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(2) from exc
-    typer.secho(
-        f"PASS: {trace}: schema version {parsed.schema_version}, {len(parsed.steps)} steps",
-        fg=typer.colors.GREEN,
-    )
+def validate_command(traces: Annotated[list[Path], typer.Argument()]) -> None:
+    """Validate one or more traces against the supported versioned format."""
+    failed = False
+    for trace in traces:
+        try:
+            parsed = load_trace(trace)
+        except (OSError, ValueError, ValidationError) as exc:
+            typer.secho(f"Error: {trace}: {exc}", fg=typer.colors.RED, err=True)
+            failed = True
+            continue
+        typer.secho(
+            f"PASS: {trace}: schema version {parsed.schema_version}, {len(parsed.steps)} steps",
+            fg=typer.colors.GREEN,
+        )
+    if failed:
+        raise typer.Exit(2)
 
 
 @app.command("compare")

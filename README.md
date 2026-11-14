@@ -37,7 +37,7 @@ Strict compares values and object key order, including nested arguments, and tre
 
 ## Validate a trace
 
-Run `uv run --no-editable agent-replay validate path/to/trace.json` to check a trace against the supported versioned format before comparing or replaying it. A valid trace exits 0; unreadable, malformed, or unsupported traces print a validation error and exit 2. This validates the file format, not whether the recorded calls are correct or safe to execute. Trace values may appear in validation errors, so protect CI logs containing sensitive data.
+Run `uv run --no-editable agent-replay validate path/to/trace.json` to check a trace against the supported versioned format before comparing or replaying it. Pass multiple paths (or a shell glob such as `examples/traces/*.json`) to check each file in one run. The command exits 0 when all files are valid; unreadable, malformed, or unsupported traces print a validation error and cause exit 2 after all paths have been checked. This validates the file format, not whether the recorded calls are correct or safe to execute. Trace values may appear in validation errors, so protect CI logs containing sensitive data.
 
 ## Agent and pytest integration
 

@@ -80,3 +80,45 @@ def test_anthropic_rejects_reused_completed_call_id():
         {"type": "tool_result", "tool_use_id": "a", "content": "ok"}]}
     with pytest.raises(ValueError, match="duplicate call id"):
         import_messages("anthropic", [call, result, call, result])
+
+
+@pytest.mark.parametrize("is_error", [False, True])
+def test_anthropic_imports_text_block_results(is_error):
+    messages = [
+        {"role": "assistant", "content": [
+            {"type": "tool_use", "id": "a", "name": "lookup", "input": {}}]},
+        {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "a",
+            "is_error": is_error, "content": [
+                {"type": "text", "text": "first "}, {"type": "text", "text": "second"}]}]},
+    ]
+    step = import_messages("anthropic", messages).steps[0]
+    assert (step.error if is_error else step.result) == "first second"
+    assert (step.result if is_error else step.error) is None
+
+
+@pytest.mark.parametrize("content", [[{"type": "image", "source": {}}],
+    [{"type": "text"}], [{"type": "text", "text": 42}], [None], 5])
+def test_anthropic_rejects_unsupported_tool_result_content(content):
+    messages = [
+        {"role": "assistant", "content": [
+            {"type": "tool_use", "id": "a", "name": "lookup", "input": {}}]},
+        {"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": "a", "content": content}]},
+    ]
+    with pytest.raises(ValueError, match="tool_result content"):
+        import_messages("anthropic", messages)
+
+
+def test_anthropic_empty_text_blocks_and_cli_import(tmp_path):
+    messages = [
+        {"role": "assistant", "content": [
+            {"type": "tool_use", "id": "a", "name": "lookup", "input": {}}]},
+        {"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": "a", "content": []}]},
+    ]
+    source = tmp_path / "input.json"
+    target = tmp_path / "trace.json"
+    source.write_text(json.dumps(messages), encoding="utf-8")
+    result = CliRunner().invoke(app, ["import", "anthropic", str(source), str(target)])
+    assert result.exit_code == 0
+    assert load_trace(target).steps[0].result == ""

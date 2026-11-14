@@ -7,6 +7,20 @@ from typing import Any
 from .models import Step, Trace
 
 
+def _anthropic_tool_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            if (not isinstance(block, dict) or block.get("type") != "text"
+                    or not isinstance(block.get("text"), str)):
+                raise ValueError("Anthropic tool_result content must contain only text blocks")
+            parts.append(block["text"])
+        return "".join(parts)
+    raise ValueError("Anthropic tool_result content must be a string or array of text blocks")
+
+
 def import_messages(provider: str, messages: Any) -> Trace:
     if provider not in {"openai", "anthropic"}:
         raise ValueError(f"unsupported provider: {provider}")
@@ -82,9 +96,7 @@ def import_messages(provider: str, messages: Any) -> Trace:
                         if "is_error" in block and not isinstance(block["is_error"], bool):
                             raise ValueError("is_error must be a boolean")
                         step = pending.pop(ident)
-                        content = block["content"]
-                        if not isinstance(content, str):
-                            raise ValueError("Anthropic tool_result content must be a string")
+                        content = _anthropic_tool_text(block["content"])
                         if block.get("is_error", False):
                             step.error = content
                         else:

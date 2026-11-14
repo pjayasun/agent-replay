@@ -15,8 +15,8 @@ Ordered by impact; each issue is intended to take under one hour.
 11. [test] Exercise nested optional matching rules.
 12. [feat] Add path-specific optional argument fields.
 13. [docs] Document JSON Schema constraints and examples.
-14. [feat] Support Anthropic text-block tool results.
-15. [test] Add CLI import coverage for Anthropic messages.
+14. [feat] Consider preserving Anthropic tool-result block boundaries.
+15. [test] Add Anthropic CLI coverage for malformed nested blocks.
 16. [docs] Document handling parallel provider tool calls.
 17. [good-first-issue] Add a SQL mock agent example.
 18. [good-first-issue] Add a booking mock agent example.

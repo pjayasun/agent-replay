@@ -10,9 +10,15 @@ from pydantic import ValidationError
 
 from .adapters import import_messages
 from .compare import compare
-from .models import dump_trace, load_trace, read_json
+from .models import dump_trace, load_trace, read_json, trace_json_schema
 
 app = typer.Typer(no_args_is_help=True)
+
+
+@app.command("schema")
+def schema_command() -> None:
+    """Print the version 1 trace JSON Schema to stdout."""
+    typer.echo(json.dumps(trace_json_schema(), indent=2))
 
 
 def _check_output_path(output: Path, inputs: tuple[Path, ...]) -> None:

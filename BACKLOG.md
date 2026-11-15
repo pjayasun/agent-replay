@@ -20,7 +20,7 @@ Ordered by impact; each issue is intended to take under one hour.
 16. [docs] Document handling parallel provider tool calls.
 17. [good-first-issue] Add a SQL mock agent example.
 18. [good-first-issue] Add a booking mock agent example.
-19. [feat] Add a stable JSON Schema export for traces.
+19. [test] Compare exported schema with runtime validation across edge cases.
 20. [test] Add Python 3.13 CI matrix entry.
 21. [docs] Add contributor release checklist.
 22. [feat] Investigate LangGraph, OpenAI Agents SDK, and MCP adapters (deferred).

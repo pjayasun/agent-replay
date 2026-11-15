@@ -30,6 +30,21 @@ class Trace(BaseModel):
     steps: list[Step]
 
 
+def trace_json_schema() -> dict[str, Any]:
+    """Return a Draft 2020-12 schema for version 1 JSON traces."""
+    schema = Trace.model_json_schema()
+    schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    # Pydantic's model validator is not automatically represented in JSON Schema.
+    schema["$defs"]["Step"]["not"] = {
+        "required": ["result", "error"],
+        "properties": {
+            "result": {"not": {"type": "null"}},
+            "error": {"not": {"type": "null"}},
+        },
+    }
+    return schema
+
+
 def load_trace(path: str | Path) -> Trace:
     return Trace.model_validate_json(Path(path).read_text(encoding="utf-8"))
 

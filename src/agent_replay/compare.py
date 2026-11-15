@@ -33,7 +33,8 @@ def compare(expected: Trace, actual: Trace, mode: Literal["strict", "loose"] = "
     optional = optional_keys or set()
     differences: list[Difference] = []
 
-    def walk(a: Any, b: Any, path: str, in_arguments: bool = False) -> None:
+    def walk(a: Any, b: Any, path: str, in_arguments: bool = False,
+             is_step: bool = False) -> None:
         if isinstance(a, dict) and isinstance(b, dict):
             ak = [k for k in a if mode == "strict" or k not in ignored]
             bk = [k for k in b if mode == "strict" or k not in ignored]
@@ -45,13 +46,14 @@ def compare(expected: Trace, actual: Trace, mode: Literal["strict", "loose"] = "
                                               reason="object keys or order differ"))
             for key in ak:
                 if key in b and key in bk:
-                    walk(a[key], b[key], f"{path}.{key}", in_arguments or key == "arguments")
+                    walk(a[key], b[key], f"{path}.{key}",
+                         in_arguments or (is_step and key == "arguments"))
         elif isinstance(a, list) and isinstance(b, list):
             if len(a) != len(b):
                 differences.append(Difference(path=path, expected=len(a), actual=len(b),
                                               reason="length differs"))
             for index, (left, right) in enumerate(zip(a, b)):
-                walk(left, right, f"{path}[{index}]", in_arguments)
+                walk(left, right, f"{path}[{index}]", in_arguments, path == "$.steps")
         elif type(a) is not type(b) or a != b:
             differences.append(Difference(path=path, expected=a, actual=b, reason="value differs"))
 

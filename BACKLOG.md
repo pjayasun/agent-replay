@@ -12,7 +12,7 @@ Ordered by impact; each issue is intended to take under one hour.
 8. [test] Test empty and extra mock calls in CLI examples.
 9. [docs] Add a trace redaction guide.
 10. [feat] Add path-specific ignored fields.
-11. [test] Exercise nested optional matching rules.
+11. [test] Exercise optional matching across multiple trace steps.
 12. [feat] Add path-specific optional argument fields.
 13. [docs] Document JSON Schema constraints and examples.
 14. [feat] Consider preserving Anthropic tool-result block boundaries.

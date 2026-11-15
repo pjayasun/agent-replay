@@ -15,6 +15,15 @@ from .models import dump_trace, load_trace, read_json
 app = typer.Typer(no_args_is_help=True)
 
 
+def _check_output_path(output: Path, inputs: tuple[Path, ...]) -> None:
+    """Avoid replacing an input through the same path, a symlink, or a hard link."""
+    for source in inputs:
+        if output.resolve() == source.resolve() or (
+            output.exists() and source.exists() and output.samefile(source)
+        ):
+            raise ValueError(f"output path must not refer to an input file: {output}")
+
+
 @app.command("validate")
 def validate_command(traces: Annotated[list[Path], typer.Argument()],
                      json_output: Annotated[bool, typer.Option("--json")] = False) -> None:
@@ -50,6 +59,8 @@ def compare_command(expected: Path, actual: Path, loose: bool = False,
                     json_report: Path | None = None) -> None:
     """Compare two traces; ACTUAL must come from an independently observed run."""
     try:
+        if json_report:
+            _check_output_path(json_report, (expected, actual))
         report = compare(load_trace(expected), load_trace(actual),
                          "loose" if loose else "strict", set(ignore or []), set(optional or []))
         if json_report:
@@ -71,6 +82,7 @@ def compare_command(expected: Path, actual: Path, loose: bool = False,
 def import_command(provider: str, source: Path, output: Path) -> None:
     """Import a JSON array of provider messages into a trace."""
     try:
+        _check_output_path(output, (source,))
         dump_trace(import_messages(provider, read_json(source)), output)
     except (OSError, ValueError, ValidationError) as exc:
         typer.secho(f"Error: {exc}", fg=typer.colors.RED, err=True)
